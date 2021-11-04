@@ -4,118 +4,143 @@
 #include <EEPROM.h>
 
 
-//page Initial(0)
-NexVariable v_PS1_G1E1_strt = NexVariable(0,1,"Initial1.PS1_G1E1_strt");
-NexVariable v_PS1_G1E2_strt = NexVariable(0,2,"Initial1.PS1_G1E2_strt");
-NexVariable v_PS1_G1E3_strt = NexVariable(0,3,"Initial1.PS1_G1E3_strt");
-NexVariable v_PS1_G1E4_strt = NexVariable(0,4,"Initial1.PS1_G1E4_strt");
-NexVariable v_PS1_G1E5_strt = NexVariable(0,5,"Initial1.PS1_G1E5_strt");
-NexVariable v_PS1_G1E1_irrg = NexVariable(0,1,"Initial1.PS1_G1E1_irrg");
-NexVariable v_PS1_G1E2_irrg = NexVariable(0,2,"Initial1.PS1_G1E2_irrg");
-NexVariable v_PS1_G1E3_irrg = NexVariable(0,3,"Initial1.PS1_G1E3_irrg");
-NexVariable v_PS1_G1E4_irrg = NexVariable(0,4,"Initial1.PS1_G1E4_irrg");
-NexVariable v_PS1_G1E5_irrg = NexVariable(0,5,"Initial1.PS1_G1E5_irrg");
-NexVariable v_PS1_G1_prio = NexVariable(0,6,"Initial1.PS1_G1_prio");
+//page Loading(0)
+NexPage pageInitial1   = NexPage(8, 0, "Initial1");
+NexVariable v_PS1_G1E1_strt = NexVariable(8,1,"Initial1.PS1_G1E1_strt");
+NexVariable v_PS1_G1E1_irrg = NexVariable(8,2,"Initial1.PS1_G1E1_irrg");
+NexVariable v_PS1_G1E2_strt = NexVariable(8,3,"Initial1.PS1_G1E2_strt");
+NexVariable v_PS1_G1E2_irrg = NexVariable(8,4,"Initial1.PS1_G1E2_irrg");
+NexVariable v_PS1_G1E3_strt = NexVariable(8,5,"Initial1.PS1_G1E3_strt");
+NexVariable v_PS1_G1E3_irrg = NexVariable(8,6,"Initial1.PS1_G1E3_irrg");
+NexVariable v_PS1_G1E4_strt = NexVariable(8,7,"Initial1.PS1_G1E4_strt");
+NexVariable v_PS1_G1E4_irrg = NexVariable(8,8,"Initial1.PS1_G1E4_irrg");
+NexVariable v_PS1_G1E5_strt = NexVariable(8,9,"Initial1.PS1_G1E5_strt");
+NexVariable v_PS1_G1E5_irrg = NexVariable(8,10,"Initial1.PS1_G1E5_irrg");
+NexVariable v_PS1_G1_prio = NexVariable(8,11,"Initial1.PS1_G1_prio");
 
-NexVariable v_PS1_G2E1_strt = NexVariable(0,7,"Initial1.PS1_G2E1_strt");
-NexVariable v_PS1_G2E2_strt = NexVariable(0,8,"Initial1.PS1_G2E2_strt");
-NexVariable v_PS1_G2E3_strt = NexVariable(0,9,"Initial1.PS1_G2E3_strt");
-NexVariable v_PS1_G2E4_strt = NexVariable(0,10,"Initial1.PS1_G2E4_strt");
-NexVariable v_PS1_G2E5_strt = NexVariable(0,11,"Initial1.PS1_G2E5_strt");
-NexVariable v_PS1_G2E1_irrg = NexVariable(0,7,"Initial1.PS1_G2E1_irrg");
-NexVariable v_PS1_G2E2_irrg = NexVariable(0,8,"Initial1.PS1_G2E2_irrg");
-NexVariable v_PS1_G2E3_irrg = NexVariable(0,9,"Initial1.PS1_G2E3_irrg");
-NexVariable v_PS1_G2E4_irrg = NexVariable(0,10,"Initial1.PS1_G2E4_irrg");
-NexVariable v_PS1_G2E5_irrg = NexVariable(0,11,"Initial1.PS1_G2E5_irrg");
-NexVariable v_PS1_G2_prio = NexVariable(0,12,"Initial1.PS1_G2_prio");
+NexVariable v_PS1_G2E1_strt = NexVariable(8,12,"Initial1.PS1_G2E1_strt");
+NexVariable v_PS1_G2E2_strt = NexVariable(8,13,"Initial1.PS1_G2E2_strt");
+NexVariable v_PS1_G2E3_strt = NexVariable(8,14,"Initial1.PS1_G2E3_strt");
+NexVariable v_PS1_G2E4_strt = NexVariable(8,15,"Initial1.PS1_G2E4_strt");
+NexVariable v_PS1_G2E5_strt = NexVariable(8,16,"Initial1.PS1_G2E5_strt");
+NexVariable v_PS1_G2E1_irrg = NexVariable(8,17,"Initial1.PS1_G2E1_irrg");
+NexVariable v_PS1_G2E2_irrg = NexVariable(8,18,"Initial1.PS1_G2E2_irrg");
+NexVariable v_PS1_G2E3_irrg = NexVariable(8,19,"Initial1.PS1_G2E3_irrg");
+NexVariable v_PS1_G2E4_irrg = NexVariable(8,20,"Initial1.PS1_G2E4_irrg");
+NexVariable v_PS1_G2E5_irrg = NexVariable(8,21,"Initial1.PS1_G2E5_irrg");
+NexVariable v_PS1_G2_prio = NexVariable(8,22,"Initial1.PS1_G2_prio");
 
-NexVariable v_PS1_G3E1_strt = NexVariable(0,13,"Initial1.PS1_G3E1_strt");
-NexVariable v_PS1_G3E2_strt = NexVariable(0,14,"Initial1.PS1_G3E2_strt");
-NexVariable v_PS1_G3E3_strt = NexVariable(0,15,"Initial1.PS1_G3E3_strt");
-NexVariable v_PS1_G3E4_strt = NexVariable(0,16,"Initial1.PS1_G3E4_strt");
-NexVariable v_PS1_G3E5_strt = NexVariable(0,17,"Initial1.PS1_G3E5_strt");
-NexVariable v_PS1_G3E1_irrg = NexVariable(0,13,"Initial1.PS1_G3E1_irrg");
-NexVariable v_PS1_G3E2_irrg = NexVariable(0,14,"Initial1.PS1_G3E2_irrg");
-NexVariable v_PS1_G3E3_irrg = NexVariable(0,15,"Initial1.PS1_G3E3_irrg");
-NexVariable v_PS1_G3E4_irrg = NexVariable(0,16,"Initial1.PS1_G3E4_irrg");
-NexVariable v_PS1_G3E5_irrg = NexVariable(0,17,"Initial1.PS1_G3E5_irrg");
-NexVariable v_PS1_G3_prio = NexVariable(0,18,"Initial1.PS1_G3_prio");
+NexVariable v_PS1_G3E1_strt = NexVariable(8,23,"Initial1.PS1_G3E1_strt");
+NexVariable v_PS1_G3E2_strt = NexVariable(8,24,"Initial1.PS1_G3E2_strt");
+NexVariable v_PS1_G3E3_strt = NexVariable(8,25,"Initial1.PS1_G3E3_strt");
+NexVariable v_PS1_G3E4_strt = NexVariable(8,26,"Initial1.PS1_G3E4_strt");
+NexVariable v_PS1_G3E5_strt = NexVariable(8,27,"Initial1.PS1_G3E5_strt");
+NexVariable v_PS1_G3E1_irrg = NexVariable(8,28,"Initial1.PS1_G3E1_irrg");
+NexVariable v_PS1_G3E2_irrg = NexVariable(8,29,"Initial1.PS1_G3E2_irrg");
+NexVariable v_PS1_G3E3_irrg = NexVariable(8,30,"Initial1.PS1_G3E3_irrg");
+NexVariable v_PS1_G3E4_irrg = NexVariable(8,31,"Initial1.PS1_G3E4_irrg");
+NexVariable v_PS1_G3E5_irrg = NexVariable(8,32,"Initial1.PS1_G3E5_irrg");
+NexVariable v_PS1_G3_prio = NexVariable(8,33,"Initial1.PS1_G3_prio");
 
-NexVariable v_PS1_G4E1_strt = NexVariable(0,19,"Initial1.PS1_G4E1_strt");
-NexVariable v_PS1_G4E2_strt = NexVariable(0,20,"Initial1.PS1_G4E2_strt");
-NexVariable v_PS1_G4E3_strt = NexVariable(0,21,"Initial1.PS1_G4E3_strt");
-NexVariable v_PS1_G4E4_strt = NexVariable(0,22,"Initial1.PS1_G4E4_strt");
-NexVariable v_PS1_G4E5_strt = NexVariable(0,23,"Initial1.PS1_G4E5_strt");
-NexVariable v_PS1_G4E1_irrg = NexVariable(0,19,"Initial1.PS1_G4E1_irrg");
-NexVariable v_PS1_G4E2_irrg = NexVariable(0,20,"Initial1.PS1_G4E2_irrg");
-NexVariable v_PS1_G4E3_irrg = NexVariable(0,21,"Initial1.PS1_G4E3_irrg");
-NexVariable v_PS1_G4E4_irrg = NexVariable(0,22,"Initial1.PS1_G4E4_irrg");
-NexVariable v_PS1_G4E5_irrg = NexVariable(0,23,"Initial1.PS1_G4E5_irrg");
-NexVariable v_PS1_G4_prio = NexVariable(0,24,"Initial1.PS1_G4_prio");
+NexVariable v_PS1_G4E1_strt = NexVariable(8,34,"Initial1.PS1_G4E1_strt");
+NexVariable v_PS1_G4E2_strt = NexVariable(8,35,"Initial1.PS1_G4E2_strt");
+NexVariable v_PS1_G4E3_strt = NexVariable(8,36,"Initial1.PS1_G4E3_strt");
+NexVariable v_PS1_G4E4_strt = NexVariable(8,37,"Initial1.PS1_G4E4_strt");
+NexVariable v_PS1_G4E5_strt = NexVariable(8,38,"Initial1.PS1_G4E5_strt");
+NexVariable v_PS1_G4E1_irrg = NexVariable(8,39,"Initial1.PS1_G4E1_irrg");
+NexVariable v_PS1_G4E2_irrg = NexVariable(8,40,"Initial1.PS1_G4E2_irrg");
+NexVariable v_PS1_G4E3_irrg = NexVariable(8,41,"Initial1.PS1_G4E3_irrg");
+NexVariable v_PS1_G4E4_irrg = NexVariable(8,42,"Initial1.PS1_G4E4_irrg");
+NexVariable v_PS1_G4E5_irrg = NexVariable(8,43,"Initial1.PS1_G4E5_irrg");
+NexVariable v_PS1_G4_prio = NexVariable(8,44,"Initial1.PS1_G4_prio");
 
-NexVariable v_PS1_G5E1_strt = NexVariable(0,25,"Initial1.PS1_G5E1_strt");
-NexVariable v_PS1_G5E2_strt = NexVariable(0,26,"Initial1.PS1_G5E2_strt");
-NexVariable v_PS1_G5E3_strt = NexVariable(0,27,"Initial1.PS1_G5E3_strt");
-NexVariable v_PS1_G5E4_strt = NexVariable(0,28,"Initial1.PS1_G5E4_strt");
-NexVariable v_PS1_G5E5_strt = NexVariable(0,29,"Initial1.PS1_G5E5_strt");
-NexVariable v_PS1_G5E1_irrg = NexVariable(0,25,"Initial1.PS1_G5E1_irrg");
-NexVariable v_PS1_G5E2_irrg = NexVariable(0,26,"Initial1.PS1_G5E2_irrg");
-NexVariable v_PS1_G5E3_irrg = NexVariable(0,27,"Initial1.PS1_G5E3_irrg");
-NexVariable v_PS1_G5E4_irrg = NexVariable(0,28,"Initial1.PS1_G5E4_irrg");
-NexVariable v_PS1_G5E5_irrg = NexVariable(0,29,"Initial1.PS1_G5E5_irrg");
-NexVariable v_PS1_G5_prio = NexVariable(0,30,"Initial1.PS1_G5_prio");
+NexVariable v_PS1_G5E1_strt = NexVariable(8,45,"Initial1.PS1_G5E1_strt");
+NexVariable v_PS1_G5E2_strt = NexVariable(8,46,"Initial1.PS1_G5E2_strt");
+NexVariable v_PS1_G5E3_strt = NexVariable(8,47,"Initial1.PS1_G5E3_strt");
+NexVariable v_PS1_G5E4_strt = NexVariable(8,48,"Initial1.PS1_G5E4_strt");
+NexVariable v_PS1_G5E5_strt = NexVariable(8,49,"Initial1.PS1_G5E5_strt");
+NexVariable v_PS1_G5E1_irrg = NexVariable(8,50,"Initial1.PS1_G5E1_irrg");
+NexVariable v_PS1_G5E2_irrg = NexVariable(8,51,"Initial1.PS1_G5E2_irrg");
+NexVariable v_PS1_G5E3_irrg = NexVariable(8,52,"Initial1.PS1_G5E3_irrg");
+NexVariable v_PS1_G5E4_irrg = NexVariable(8,53,"Initial1.PS1_G5E4_irrg");
+NexVariable v_PS1_G5E5_irrg = NexVariable(8,54,"Initial1.PS1_G5E5_irrg");
+NexVariable v_PS1_G5_prio = NexVariable(8,55,"Initial1.PS1_G5_prio");
 
-NexVariable v_PS1_G6E1_strt = NexVariable(0,31,"Initial1.PS1_G6E1_strt");
-NexVariable v_PS1_G6E2_strt = NexVariable(0,32,"Initial1.PS1_G6E2_strt");
-NexVariable v_PS1_G6E3_strt = NexVariable(0,33,"Initial1.PS1_G6E3_strt");
-NexVariable v_PS1_G6E4_strt = NexVariable(0,34,"Initial1.PS1_G6E4_strt");
-NexVariable v_PS1_G6E5_strt = NexVariable(0,35,"Initial1.PS1_G6E5_strt");
-NexVariable v_PS1_G6E1_irrg = NexVariable(0,31,"Initial1.PS1_G6E1_irrg");
-NexVariable v_PS1_G6E2_irrg = NexVariable(0,32,"Initial1.PS1_G6E2_irrg");
-NexVariable v_PS1_G6E3_irrg = NexVariable(0,33,"Initial1.PS1_G6E3_irrg");
-NexVariable v_PS1_G6E4_irrg = NexVariable(0,34,"Initial1.PS1_G6E4_irrg");
-NexVariable v_PS1_G6E5_irrg = NexVariable(0,35,"Initial1.PS1_G6E5_irrg");
-NexVariable v_PS1_G6_prio = NexVariable(0,30,"Initial1.PS1_G6_prio");
+NexVariable v_PS1_G6E1_strt = NexVariable(8,56,"Initial1.PS1_G6E1_strt");
+NexVariable v_PS1_G6E2_strt = NexVariable(8,57,"Initial1.PS1_G6E2_strt");
+NexVariable v_PS1_G6E3_strt = NexVariable(8,58,"Initial1.PS1_G6E3_strt");
+NexVariable v_PS1_G6E4_strt = NexVariable(8,59,"Initial1.PS1_G6E4_strt");
+NexVariable v_PS1_G6E5_strt = NexVariable(8,60,"Initial1.PS1_G6E5_strt");
+NexVariable v_PS1_G6E1_irrg = NexVariable(8,61,"Initial1.PS1_G6E1_irrg");
+NexVariable v_PS1_G6E2_irrg = NexVariable(8,62,"Initial1.PS1_G6E2_irrg");
+NexVariable v_PS1_G6E3_irrg = NexVariable(8,63,"Initial1.PS1_G6E3_irrg");
+NexVariable v_PS1_G6E4_irrg = NexVariable(8,64,"Initial1.PS1_G6E4_irrg");
+NexVariable v_PS1_G6E5_irrg = NexVariable(8,65,"Initial1.PS1_G6E5_irrg");
+NexVariable v_PS1_G6_prio = NexVariable(8,66,"Initial1.PS1_G6_prio");
 
-//page Dashboard(1)
-NexPage pageDashboard   = NexPage(1, 0, "dashboard");
-NexHotspot m_pumpset1 = NexHotspot(1,32,"m0");
-NexHotspot m_systemInfo = NexHotspot(1,37,"m5");
-NexHotspot m_setCalendar = NexHotspot(1,38,"m6");
-NexHotspot m_setWifi = NexHotspot(1,39,"m7");
-
-
-//page Sset Pump(2)
-NexPage pageSetPump  = NexPage(2, 0, "set_pump");
+//page Dashboard(0)
+NexPage pageDashboard   = NexPage(0, 0, "dashboard");
+NexHotspot m_pumpset1 = NexHotspot(0,32,"m0");
+NexHotspot m_systemInfo = NexHotspot(0,37,"m5");
+NexHotspot m_setCalendar = NexHotspot(0,38,"m6");
+NexHotspot m_setWifi = NexHotspot(0,39,"m7");
+NexVariable v_pumpset = NexVariable(0,40,"dashboard.pumpset");
 
 
+//page Sset Pump(1)
+NexPage pageSetPump  = NexPage(1, 0, "set_pump");
+NexVariable v_time_position = NexVariable(1,115,"set_pump.time_position");
+
+//page Sset Event(2)
+NexHotspot m_saveEventTime = NexHotspot(2, 4, "m3");
+NexVariable v_mcu_read3 = NexVariable(2,19,"mcu_read");
+NexVariable v_buf_GE_strt = NexVariable(2,36,"V_buf_GE_strt");
+NexVariable v_buf_GE_irrg = NexVariable(2,37,"V_buf_GE_irrg");
+
+//page Sset Prio(3)
+NexHotspot m_saveEventPrio = NexHotspot(3, 4, "m3");
+NexVariable v_savePrio = NexVariable(3,7,"save");
+NexVariable v_mcu_read4 = NexVariable(3,8,"mcu_read");
+NexVariable v_buf_G_prio1 = NexVariable(3,44,"V_buf_G_prio1");
+NexVariable v_buf_G_prio2 = NexVariable(3,45,"V_buf_G_prio2");
+NexVariable v_buf_G_prio3 = NexVariable(3,46,"V_buf_G_prio3");
+NexVariable v_buf_G_prio4 = NexVariable(3,47,"V_buf_G_prio4");
+NexVariable v_buf_G_prio5 = NexVariable(3,48,"V_buf_G_prio5");
+NexVariable v_buf_G_prio6 = NexVariable(3,49,"V_buf_G_prio6");
 
 
-//page SystemInfo(5)
-NexPage pageSysinfo  = NexPage(5, 0, "systeminfo");
+
+
+//page SystemInfo(4)
+NexPage pageSysinfo  = NexPage(4, 0, "systeminfo");
 
 //page SetCalendar(5)
-NexPage pageSetCalendar  = NexPage(6, 0, "set_calendar");
+NexPage pageSetCalendar  = NexPage(5, 0, "set_calendar");
 
-
-NexHotspot m_saveTarget = NexHotspot(2,4,"m3");
 
 NexTouch *nex_listen_list[] =
 { 
     &m_pumpset1,
-    &m_saveTarget,
+    &m_saveEventTime,
+    &m_saveEventPrio,
     NULL
 };
 
 
 
 //Global Structure
-struct hmi_data//manage memory from hmi
+struct hmi_data8bit//manage memory from hmi
 {
   unsigned char   byt0;
   unsigned char   byt1;
   unsigned char   byt2;
   unsigned char   byt3;
+};
+
+struct hmi_data16bit//manage memory from hmi
+{
+  uint16_t   reg0;
+  uint16_t   reg1;
 };
 
 
@@ -169,9 +194,11 @@ struct pumpset {
 struct pumpset Pumpset;
 
 //Access Global Structure
-hmi_data get_byte(unsigned long hmi_set_var);
-hmi_data hmi_var;
+hmi_data8bit get_byte(unsigned long hmi_8bit_var);
+hmi_data8bit hmi_8bit_var;
 
+hmi_data16bit get_16bit(unsigned long hmi_16bit_var);
+hmi_data16bit hmi_16bit_var;
 
 
 
@@ -186,12 +213,10 @@ void uptime();
 void initialConfig();
 
 //Nextion Fuction
-
-//page Set Pump(1)
+void loadConfigHMI_PS1();
 void pageSetPumpActionCallback(void *ptr);
-
-
-void saveTargetActionCallback(void *ptr);
+void saveEventTimingActionCallback(void *ptr);
+void saveEventPriorityActionCallback(void *ptr);
 
 uint32_t shiftToHMI_timeStrt(struct event_timeStart *p){
   uint32_t shift_Strt = 0;
@@ -211,50 +236,50 @@ uint32_t shiftToHMI_priority(struct event_priority *p){
   return shift_Prio;
 }
 
+// uint32_t ack_event(){
+//   uint32_t ack = 0;
+// }
+
+
 void setup() {
   EEPROM.begin(1);
   Serial.begin(9600);
   // put your setup code here, to run once:
   nexInit();
   m_pumpset1.attachPop(pageSetPumpActionCallback, &m_pumpset1);
-  m_saveTarget.attachPop(saveTargetActionCallback, &m_saveTarget);
-
+  m_saveEventTime.attachPop(saveEventTimingActionCallback, &m_saveEventTime);
+  m_saveEventPrio.attachPop(saveEventPriorityActionCallback, &m_saveEventPrio);
   initialConfig();
-
 }
 
 
 bool debug = false;
 void loop() {
   uptime();
-  
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event1);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event1);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event2);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event2);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event3);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event3);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event4);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event4);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event5);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event5);
-   shiftToHMI_priority(&Pumpset.pumpset1.group1.priority);
 
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event1);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event1);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event2);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event2);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event3);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event3);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event4);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event4);
-   shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event5);
-   shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event5);
-   shiftToHMI_priority(&Pumpset.pumpset1.group2.priority);
-  
-  
   if(!debug){
-    uint32_t _G_event = 0;
+    //loadConfigHMI_PS1();
+    debug = true;
+  }
+  nexLoop(nex_listen_list);
+}
+
+
+//System Process
+unsigned long lastchecktime = 0;
+void uptime() {
+  if(millis()-lastchecktime>950) {
+      unsigned long secsUp = millis()/1000;
+      Second = secsUp%60;
+      Minute = (secsUp/60)%60;
+      Hour = (secsUp/(60*60))%24;
+      lastchecktime = millis();
+  }
+}
+
+//Nextion Process
+void loadConfigHMI_PS1(){
+      uint32_t _G_event = 0;
     //Group 1
     _G_event = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event1);
     v_PS1_G1E1_strt.setValue(_G_event);
@@ -398,60 +423,130 @@ void loop() {
     v_PS1_G6E5_irrg.setValue(_G_event);
     _G_event = shiftToHMI_priority(&Pumpset.pumpset1.group6.priority);
     v_PS1_G6_prio.setValue(_G_event);
-    
-    
-
-
-  pageDashboard.show();
-
-    debug = true;
-  }
-  nexLoop(nex_listen_list);
-}
-
-
-//System Process
-unsigned long lastchecktime = 0;
-void uptime() {
-  if(millis()-lastchecktime>950) {
-      unsigned long secsUp = millis()/1000;
-      Second = secsUp%60;
-      Minute = (secsUp/60)%60;
-      Hour = (secsUp/(60*60))%24;
-      lastchecktime = millis();
-  }
-}
-
-//Nextion Process
-void loadConfigHMI(){
-  
 }
 
 //Page SystemIno(1)
-
 void pageSetPumpActionCallback(void *ptr) {
+   uint32_t pumpSet = 0;
+   v_pumpset.getValue(&pumpSet);
+   pageInitial1.show();
+   if(pumpSet == 1){
+    loadConfigHMI_PS1();
+   }
    pageSetPump.show();
-  
+}
+
+//Page Set Event(3)
+void saveEventTimingActionCallback(void *ptr){
+  uint32_t pumpSet, timePosition, getTimeStrt, getTimeIrrg, ack = 0;
+  v_pumpset.getValue(&pumpSet);
+  v_time_position.getValue(&timePosition);
+  v_buf_GE_strt.getValue(&getTimeStrt);
+  v_buf_GE_irrg.getValue(&getTimeIrrg);
+
+  hmi_8bit_var = get_byte(getTimeStrt);
+  hmi_16bit_var = get_16bit(getTimeIrrg);
+  if(pumpSet == 1){
+    if(timePosition==1){
+      Pumpset.pumpset1.group1.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group1.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group1.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group1.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event1);
+      Serial.println("ACK EVENT : " + String(ack));
+    }
+  }
+  Serial.println("#####Save Event Timing Success");
+  v_mcu_read3.setValue(ack);
+}
+
+//Page Set set_priority(4)
+void saveEventPriorityActionCallback(void *ptr){
+  uint32_t savePrio = 0;
+  v_savePrio.getValue(&savePrio);
+  if(savePrio==1){
+    uint32_t _G1,_G2,_G3,_G4,_G5,_G6,pumpSet, ack = 0;
+    v_pumpset.getValue(&pumpSet);
+    v_buf_G_prio1.getValue(&_G1);
+    v_buf_G_prio2.getValue(&_G2);
+    v_buf_G_prio3.getValue(&_G3);
+    v_buf_G_prio4.getValue(&_G4);
+    v_buf_G_prio5.getValue(&_G5);
+    v_buf_G_prio6.getValue(&_G6);
+
+    
+    if(pumpSet == 1){
+        hmi_8bit_var = get_byte(_G1);
+        Pumpset.pumpset1.group1.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset1.group1.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G2);
+        Pumpset.pumpset1.group2.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset1.group2.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G3);
+        Pumpset.pumpset1.group3.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset1.group3.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G4);
+        Pumpset.pumpset1.group4.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset1.group4.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G5);
+        Pumpset.pumpset1.group5.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset1.group5.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G6);
+        Pumpset.pumpset1.group6.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset1.group6.priority.pump_interrupt = hmi_8bit_var.byt0;
+        Serial.println("###Group1");
+        Serial.println(Pumpset.pumpset1.group1.priority.pump_priority);
+        Serial.println(Pumpset.pumpset1.group1.priority.pump_interrupt);
+        Serial.println("###Group2");
+        Serial.println(Pumpset.pumpset1.group2.priority.pump_priority);
+        Serial.println(Pumpset.pumpset1.group2.priority.pump_interrupt);
+        Serial.println("###Group3");
+        Serial.println(Pumpset.pumpset1.group3.priority.pump_priority);
+        Serial.println(Pumpset.pumpset1.group3.priority.pump_interrupt);
+        Serial.println("###Group4");
+        Serial.println(Pumpset.pumpset1.group4.priority.pump_priority);
+        Serial.println(Pumpset.pumpset1.group4.priority.pump_interrupt);
+        Serial.println("###Group5");
+        Serial.println(Pumpset.pumpset1.group5.priority.pump_priority);
+        Serial.println(Pumpset.pumpset1.group5.priority.pump_interrupt);
+        Serial.println("###Group6");
+        Serial.println(Pumpset.pumpset1.group6.priority.pump_priority);
+        Serial.println(Pumpset.pumpset1.group6.priority.pump_interrupt);
+        ack = shiftToHMI_priority(&Pumpset.pumpset1.group1.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group2.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group3.priority); 
+        ack += shiftToHMI_priority(&Pumpset.pumpset1.group4.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group5.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group6.priority);
+        Serial.println("ACK PRIO : " + String(ack));
+    }
+    Serial.println("#####Save Event Priority Success");
+    v_mcu_read4.setValue(ack);
+  }
 }
 
 //Page SystemIno(7)
 void pageSysinfoActionCallback(void *ptr) {
 
-
 }
 
 
-void saveTargetActionCallback(void *ptr){
-  Serial.println("Save from Nextion");
-}
+
 
 //*****************Memmory Manage**********************//
-hmi_data get_byte(unsigned long hmi_set_var) { //manage byte
-  hmi_data HMI;
-  HMI.byt0 =  hmi_set_var & 0xFF;
-  HMI.byt1 = (hmi_set_var >> 8) & 0xFF;
-  HMI.byt2 = (hmi_set_var >> 16) & 0xFF;
-  HMI.byt3 = (hmi_set_var >> 24) & 0xFF;
+hmi_data8bit get_byte(unsigned long hmi_8bit_var) { //manage byte
+  hmi_data8bit HMI;
+  HMI.byt0 =  hmi_8bit_var & 0xFF;
+  HMI.byt1 = (hmi_8bit_var >> 8) & 0xFF;
+  HMI.byt2 = (hmi_8bit_var >> 16) & 0xFF;
+  HMI.byt3 = (hmi_8bit_var >> 24) & 0xFF;
+  return HMI;
+}
+
+hmi_data16bit get_16bit(unsigned long hmi_16bit_var) { //manage byte
+  hmi_data16bit HMI;
+  HMI.reg0 =  hmi_16bit_var & 0xFFFF;
+  HMI.reg1 = (hmi_16bit_var >> 16) & 0xFFFF;
   return HMI;
 }
 
@@ -465,6 +560,8 @@ void initialConfig(){
                       .group5 = {.timeStart_event1 = {71,72}, .timeIrrigate_event1 = {1473,1474}, .timeStart_event2 = {75,76}, .timeIrrigate_event2 = {1477,1478}, .timeStart_event3 = {78,79}, .timeIrrigate_event3 = {1480,1481}, .timeStart_event4 = {82,83}, .timeIrrigate_event4 = {1484,1485}, .timeStart_event5 = {86,87}, .timeIrrigate_event5 = {1488,1489}, .priority = {5,true}},
                       .group6 = {.timeStart_event1 = {91,92}, .timeIrrigate_event1 = {1493,1494}, .timeStart_event2 = {95,96}, .timeIrrigate_event2 = {1497,1498}, .timeStart_event3 = {98,99}, .timeIrrigate_event3 = {100,101}, .timeStart_event4 = {102,103}, .timeIrrigate_event4 = {104,105}, .timeStart_event5 = {106,107}, .timeIrrigate_event5 = {108,109}, .priority = {6,false}}};                                                             
 }
+
+
 
 
 

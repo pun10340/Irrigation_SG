@@ -393,7 +393,9 @@ NexVariable v_ps_sta5 = NexVariable(0,46,"ps_sta5");
 
 //page Sset Pump(1)
 NexPage pageSetPump  = NexPage(1, 0, "set_pump");
+NexHotspot m_back_dashboard1 = NexHotspot(1, 1, "m0");
 NexVariable v_time_position = NexVariable(1,115,"set_pump.time_position");
+
 
 
 //page Sset Event(2)
@@ -430,6 +432,7 @@ NexTouch *nex_listen_list[] =
     &m_pumpset3,
     &m_pumpset4,
     &m_pumpset5,
+    &m_back_dashboard1,
     &m_saveEventTime,
     &m_saveEventPrio,
     NULL
@@ -535,6 +538,7 @@ void loadConfigHMI_PS3();
 void loadConfigHMI_PS4();
 void loadConfigHMI_PS5();
 void pageSetPumpActionCallback(void *ptr);
+void pageDashboardActionCallback(void *ptr);
 void saveEventTimingActionCallback(void *ptr);
 void saveEventPriorityActionCallback(void *ptr);
 
@@ -579,6 +583,7 @@ void setup() {
   m_pumpset3.attachPop(pageSetPumpActionCallback, &m_pumpset3);
   m_pumpset4.attachPop(pageSetPumpActionCallback, &m_pumpset4);
   m_pumpset5.attachPop(pageSetPumpActionCallback, &m_pumpset5);
+  m_back_dashboard1.attachPop(pageDashboardActionCallback, &m_back_dashboard1);
   m_saveEventTime.attachPop(saveEventTimingActionCallback, &m_saveEventTime);
   m_saveEventPrio.attachPop(saveEventPriorityActionCallback, &m_saveEventPrio);
   initialConfig();
@@ -588,7 +593,7 @@ void setup() {
 bool debug = false;
 void loop() {
   uptime();
-  //updateDisplay();
+  updateDisplay();
 
   if(!debug){
     //loadConfigHMI_PS1();
@@ -611,8 +616,9 @@ void uptime() {
 }
 
 unsigned long lastUpdateDisplay = 0;
+bool dashboardFocus = true;
 void updateDisplay(){
-  if(millis() - lastUpdateDisplay >= 1000){
+  if(millis() - lastUpdateDisplay >= 1000 && dashboardFocus){
     updatePumpstatus();
     lastUpdateDisplay = millis();
   }
@@ -1369,10 +1375,16 @@ void loadConfigHMI_PS5(){
     v_PS5_G6_prio.setValue(_G_event);
 }
 
+//Page Dashboard(0)
+void pageDashboardActionCallback(void *ptr) {
+  pageDashboard.show();
+  dashboardFocus = true;
+}
 
 //Page SystemIno(1)
 void pageSetPumpActionCallback(void *ptr) {
    uint32_t pumpSet = 0;
+   dashboardFocus = false;
    v_pumpset.getValue(&pumpSet);
    pageInitial1.show();
    if(pumpSet == 1){
@@ -1389,6 +1401,8 @@ void pageSetPumpActionCallback(void *ptr) {
    pageSetPump.show();
 }
 
+
+
 //Page Set Event(3)
 void saveEventTimingActionCallback(void *ptr){
   uint32_t pumpSet, timePosition, getTimeStrt, getTimeIrrg, ack = 0;
@@ -1400,6 +1414,7 @@ void saveEventTimingActionCallback(void *ptr){
   hmi_8bit_var = get_byte(getTimeStrt);
   hmi_16bit_var = get_16bit(getTimeIrrg);
   if(pumpSet == 1){
+    //Group 1
     if(timePosition==1){
       Pumpset.pumpset1.group1.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
       Pumpset.pumpset1.group1.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
@@ -1410,7 +1425,1708 @@ void saveEventTimingActionCallback(void *ptr){
       Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event1.time_irrg);
       Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event1.time_inv);
       ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event1);
-      Serial.println("ACK EVENT : " + String(ack));
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==2){
+      Pumpset.pumpset1.group1.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group1.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group1.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group1.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==3){
+      Pumpset.pumpset1.group1.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group1.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group1.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group1.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==4){
+      Pumpset.pumpset1.group1.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group1.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group1.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group1.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==5){
+      Pumpset.pumpset1.group1.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group1.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group1.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group1.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group1.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset1.group1.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group1.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group1.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 2
+    else if(timePosition==6){
+      Pumpset.pumpset1.group2.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group2.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group2.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group2.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==7){
+      Pumpset.pumpset1.group2.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group2.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group2.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group2.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==8){
+      Pumpset.pumpset1.group2.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group2.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group2.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group2.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==9){
+      Pumpset.pumpset1.group2.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group2.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group2.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group2.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==10){
+      Pumpset.pumpset1.group2.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group2.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group2.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group2.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group2.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset1.group2.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group2.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group2.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 3
+    else if(timePosition==11){
+      Pumpset.pumpset1.group3.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group3.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group3.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group3.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group3.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group3.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==12){
+      Pumpset.pumpset1.group3.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group3.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group3.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group3.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group3.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group3.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==13){
+      Pumpset.pumpset1.group3.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group3.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group3.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group3.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group3.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group3.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==14){
+      Pumpset.pumpset1.group3.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group3.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group3.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group3.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group3.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group3.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==15){
+      Pumpset.pumpset1.group3.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group3.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group3.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group3.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group3.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset1.group3.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group3.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group3.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 4
+    else if(timePosition==16){
+      Pumpset.pumpset1.group4.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group4.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group4.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group4.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group4.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group4.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==17){
+      Pumpset.pumpset1.group4.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group4.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group4.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group4.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group4.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group4.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==18){
+      Pumpset.pumpset1.group4.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group4.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group4.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group4.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group4.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group4.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==19){
+      Pumpset.pumpset1.group4.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group4.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group4.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group4.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group4.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group4.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==20){
+      Pumpset.pumpset1.group4.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group4.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group4.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group4.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group4.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset1.group4.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group4.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group4.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 5
+    else if(timePosition==21){
+      Pumpset.pumpset1.group5.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group5.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group5.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group5.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group5.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group5.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==22){
+      Pumpset.pumpset1.group5.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group5.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group5.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group5.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group5.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group5.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==23){
+      Pumpset.pumpset1.group5.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group5.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group5.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group5.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group5.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group5.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==24){
+      Pumpset.pumpset1.group5.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group5.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group5.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group5.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group5.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group5.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==25){
+      Pumpset.pumpset1.group5.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group5.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group5.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group5.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group5.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset1.group5.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group5.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group5.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 6
+    else if(timePosition==26){
+      Pumpset.pumpset1.group6.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group6.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group6.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group6.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group6.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group6.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==27){
+      Pumpset.pumpset1.group6.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group6.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group6.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group6.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group6.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group6.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==28){
+      Pumpset.pumpset1.group6.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group6.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group6.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group6.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group6.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group6.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==29){
+      Pumpset.pumpset1.group6.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group6.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group6.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group6.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group6.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group6.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==30){
+      Pumpset.pumpset1.group6.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset1.group6.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset1.group6.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset1.group6.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset1.group6.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset1.group6.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset1.group6.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset1.group6.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+  }else if(pumpSet == 2){
+    //Group 1
+    if(timePosition==1){
+      Pumpset.pumpset2.group1.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group1.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group1.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group1.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group1.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group1.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==2){
+      Pumpset.pumpset2.group1.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group1.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group1.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group1.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group1.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group1.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==3){
+      Pumpset.pumpset2.group1.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group1.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group1.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group1.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group1.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group1.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==4){
+      Pumpset.pumpset2.group1.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group1.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group1.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group1.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group1.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group1.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==5){
+      Pumpset.pumpset2.group1.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group1.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group1.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group1.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group1.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset2.group1.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group1.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group1.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 2
+    else if(timePosition==6){
+      Pumpset.pumpset2.group2.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group2.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group2.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group2.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group2.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group2.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==7){
+      Pumpset.pumpset2.group2.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group2.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group2.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group2.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group2.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group2.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==8){
+      Pumpset.pumpset2.group2.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group2.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group2.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group2.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group2.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group2.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==9){
+      Pumpset.pumpset2.group2.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group2.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group2.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group2.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group2.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group2.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==10){
+      Pumpset.pumpset2.group2.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group2.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group2.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group2.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group2.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset2.group2.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group2.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group2.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 3
+    else if(timePosition==11){
+      Pumpset.pumpset2.group3.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group3.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group3.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group3.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group3.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group3.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==12){
+      Pumpset.pumpset2.group3.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group3.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group3.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group3.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group3.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group3.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==13){
+      Pumpset.pumpset2.group3.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group3.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group3.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group3.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group3.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group3.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==14){
+      Pumpset.pumpset2.group3.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group3.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group3.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group3.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group3.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group3.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==15){
+      Pumpset.pumpset2.group3.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group3.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group3.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group3.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group3.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset2.group3.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group3.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group3.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 4
+    else if(timePosition==16){
+      Pumpset.pumpset2.group4.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group4.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group4.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group4.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group4.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group4.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==17){
+      Pumpset.pumpset2.group4.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group4.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group4.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group4.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group4.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group4.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==18){
+      Pumpset.pumpset2.group4.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group4.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group4.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group4.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group4.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group4.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==19){
+      Pumpset.pumpset2.group4.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group4.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group4.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group4.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group4.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group4.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==20){
+      Pumpset.pumpset2.group4.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group4.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group4.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group4.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group4.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset2.group4.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group4.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group4.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 5
+    else if(timePosition==21){
+      Pumpset.pumpset2.group5.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group5.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group5.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group5.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group5.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group5.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==22){
+      Pumpset.pumpset2.group5.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group5.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group5.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group5.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group5.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group5.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==23){
+      Pumpset.pumpset2.group5.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group5.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group5.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group5.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group5.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group5.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==24){
+      Pumpset.pumpset2.group5.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group5.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group5.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group5.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group5.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group5.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==25){
+      Pumpset.pumpset2.group5.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group5.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group5.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group5.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group5.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset2.group5.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group5.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group5.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 6
+    else if(timePosition==26){
+      Pumpset.pumpset2.group6.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group6.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group6.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group6.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group6.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group6.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==27){
+      Pumpset.pumpset2.group6.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group6.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group6.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group6.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group6.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group6.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==28){
+      Pumpset.pumpset2.group6.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group6.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group6.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group6.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group6.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group6.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==29){
+      Pumpset.pumpset2.group6.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group6.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group6.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group6.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group6.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group6.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==30){
+      Pumpset.pumpset2.group6.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset2.group6.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset2.group6.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset2.group6.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset2.group6.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset2.group6.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset2.group6.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset2.group6.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+  }else if(pumpSet == 3){
+    //Group 1
+    if(timePosition==1){
+      Pumpset.pumpset3.group1.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group1.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group1.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group1.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group1.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group1.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==2){
+      Pumpset.pumpset3.group1.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group1.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group1.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group1.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group1.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group1.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==3){
+      Pumpset.pumpset3.group1.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group1.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group1.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group1.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group1.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group1.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==4){
+      Pumpset.pumpset3.group1.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group1.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group1.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group1.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group1.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group1.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==5){
+      Pumpset.pumpset3.group1.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group1.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group1.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group1.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group1.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset3.group1.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group1.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group1.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 2
+    else if(timePosition==6){
+      Pumpset.pumpset3.group2.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group2.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group2.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group2.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group2.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group2.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==7){
+      Pumpset.pumpset3.group2.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group2.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group2.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group2.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group2.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group2.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==8){
+      Pumpset.pumpset3.group2.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group2.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group2.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group2.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group2.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group2.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==9){
+      Pumpset.pumpset3.group2.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group2.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group2.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group2.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group2.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group2.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==10){
+      Pumpset.pumpset3.group2.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group2.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group2.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group2.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group2.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset3.group2.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group2.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group2.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 3
+    else if(timePosition==11){
+      Pumpset.pumpset3.group3.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group3.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group3.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group3.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group3.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group3.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==12){
+      Pumpset.pumpset3.group3.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group3.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group3.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group3.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group3.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group3.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==13){
+      Pumpset.pumpset3.group3.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group3.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group3.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group3.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group3.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group3.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==14){
+      Pumpset.pumpset3.group3.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group3.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group3.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group3.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group3.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group3.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==15){
+      Pumpset.pumpset3.group3.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group3.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group3.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group3.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group3.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset3.group3.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group3.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group3.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 4
+    else if(timePosition==16){
+      Pumpset.pumpset3.group4.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group4.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group4.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group4.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group4.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group4.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==17){
+      Pumpset.pumpset3.group4.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group4.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group4.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group4.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group4.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group4.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==18){
+      Pumpset.pumpset3.group4.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group4.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group4.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group4.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group4.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group4.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==19){
+      Pumpset.pumpset3.group4.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group4.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group4.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group4.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group4.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group4.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==20){
+      Pumpset.pumpset3.group4.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group4.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group4.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group4.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group4.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset3.group4.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group4.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group4.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 5
+    else if(timePosition==21){
+      Pumpset.pumpset3.group5.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group5.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group5.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group5.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group5.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group5.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==22){
+      Pumpset.pumpset3.group5.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group5.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group5.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group5.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group5.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group5.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==23){
+      Pumpset.pumpset3.group5.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group5.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group5.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group5.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group5.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group5.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==24){
+      Pumpset.pumpset3.group5.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group5.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group5.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group5.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group5.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group5.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==25){
+      Pumpset.pumpset3.group5.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group5.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group5.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group5.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group5.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset3.group5.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group5.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group5.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 6
+    else if(timePosition==26){
+      Pumpset.pumpset3.group6.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group6.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group6.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group6.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group6.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group6.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==27){
+      Pumpset.pumpset3.group6.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group6.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group6.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group6.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group6.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group6.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==28){
+      Pumpset.pumpset3.group6.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group6.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group6.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group6.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group6.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group6.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==29){
+      Pumpset.pumpset3.group6.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group6.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group6.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group6.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group6.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group6.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==30){
+      Pumpset.pumpset3.group6.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset3.group6.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset3.group6.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset3.group6.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset3.group6.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset3.group6.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset3.group6.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset3.group6.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+  }else if(pumpSet == 4){
+    //Group 1
+    if(timePosition==1){
+      Pumpset.pumpset4.group1.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group1.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group1.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group1.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group1.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group1.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==2){
+      Pumpset.pumpset4.group1.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group1.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group1.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group1.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group1.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group1.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==3){
+      Pumpset.pumpset4.group1.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group1.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group1.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group1.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group1.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group1.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==4){
+      Pumpset.pumpset4.group1.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group1.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group1.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group1.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group1.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group1.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==5){
+      Pumpset.pumpset4.group1.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group1.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group1.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group1.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group1.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset4.group1.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group1.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group1.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 2
+    else if(timePosition==6){
+      Pumpset.pumpset4.group2.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group2.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group2.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group2.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group2.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group2.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==7){
+      Pumpset.pumpset4.group2.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group2.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group2.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group2.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group2.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group2.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==8){
+      Pumpset.pumpset4.group2.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group2.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group2.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group2.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group2.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group2.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==9){
+      Pumpset.pumpset4.group2.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group2.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group2.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group2.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group2.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group2.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==10){
+      Pumpset.pumpset4.group2.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group2.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group2.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group2.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group2.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset4.group2.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group2.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group2.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 3
+    else if(timePosition==11){
+      Pumpset.pumpset4.group3.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group3.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group3.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group3.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group3.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group3.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==12){
+      Pumpset.pumpset4.group3.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group3.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group3.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group3.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group3.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group3.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==13){
+      Pumpset.pumpset4.group3.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group3.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group3.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group3.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group3.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group3.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==14){
+      Pumpset.pumpset4.group3.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group3.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group3.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group3.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group3.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group3.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==15){
+      Pumpset.pumpset4.group3.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group3.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group3.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group3.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group3.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset4.group3.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group3.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group3.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 4
+    else if(timePosition==16){
+      Pumpset.pumpset4.group4.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group4.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group4.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group4.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group4.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group4.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==17){
+      Pumpset.pumpset4.group4.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group4.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group4.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group4.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group4.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group4.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==18){
+      Pumpset.pumpset4.group4.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group4.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group4.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group4.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group4.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group4.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==19){
+      Pumpset.pumpset4.group4.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group4.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group4.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group4.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group4.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group4.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==20){
+      Pumpset.pumpset4.group4.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group4.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group4.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group4.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group4.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset4.group4.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group4.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group4.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 5
+    else if(timePosition==21){
+      Pumpset.pumpset4.group5.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group5.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group5.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group5.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group5.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group5.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==22){
+      Pumpset.pumpset4.group5.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group5.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group5.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group5.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group5.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group5.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==23){
+      Pumpset.pumpset4.group5.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group5.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group5.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group5.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group5.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group5.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==24){
+      Pumpset.pumpset4.group5.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group5.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group5.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group5.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group5.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group5.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==25){
+      Pumpset.pumpset4.group5.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group5.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group5.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group5.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group5.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset4.group5.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group5.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group5.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 6
+    else if(timePosition==26){
+      Pumpset.pumpset4.group6.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group6.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group6.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group6.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group6.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group6.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==27){
+      Pumpset.pumpset4.group6.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group6.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group6.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group6.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group6.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group6.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==28){
+      Pumpset.pumpset4.group6.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group6.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group6.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group6.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group6.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group6.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==29){
+      Pumpset.pumpset4.group6.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group6.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group6.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group6.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group6.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group6.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==30){
+      Pumpset.pumpset4.group6.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset4.group6.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset4.group6.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset4.group6.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset4.group6.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset4.group6.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset4.group6.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset4.group6.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+  }else if(pumpSet == 5){
+    //Group 1
+    if(timePosition==1){
+      Pumpset.pumpset5.group1.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group1.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group1.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group1.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group1.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group1.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==2){
+      Pumpset.pumpset5.group1.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group1.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group1.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group1.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group1.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group1.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==3){
+      Pumpset.pumpset5.group1.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group1.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group1.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group1.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group1.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group1.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==4){
+      Pumpset.pumpset5.group1.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group1.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group1.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group1.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group1.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group1.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==5){
+      Pumpset.pumpset5.group1.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group1.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group1.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group1.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group1.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset5.group1.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group1.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group1.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 2
+    else if(timePosition==6){
+      Pumpset.pumpset5.group2.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group2.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group2.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group2.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group2.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group2.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==7){
+      Pumpset.pumpset5.group2.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group2.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group2.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group2.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group2.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group2.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==8){
+      Pumpset.pumpset5.group2.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group2.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group2.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group2.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group2.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group2.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==9){
+      Pumpset.pumpset5.group2.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group2.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group2.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group2.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group2.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group2.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==10){
+      Pumpset.pumpset5.group2.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group2.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group2.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group2.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group2.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset5.group2.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group2.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group2.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 3
+    else if(timePosition==11){
+      Pumpset.pumpset5.group3.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group3.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group3.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group3.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group3.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group3.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==12){
+      Pumpset.pumpset5.group3.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group3.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group3.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group3.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group3.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group3.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==13){
+      Pumpset.pumpset5.group3.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group3.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group3.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group3.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group3.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group3.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==14){
+      Pumpset.pumpset5.group3.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group3.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group3.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group3.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group3.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group3.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==15){
+      Pumpset.pumpset5.group3.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group3.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group3.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group3.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group3.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset5.group3.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group3.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group3.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 4
+    else if(timePosition==16){
+      Pumpset.pumpset5.group4.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group4.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group4.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group4.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group4.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group4.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==17){
+      Pumpset.pumpset5.group4.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group4.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group4.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group4.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group4.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group4.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==18){
+      Pumpset.pumpset5.group4.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group4.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group4.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group4.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group4.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group4.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==19){
+      Pumpset.pumpset5.group4.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group4.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group4.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group4.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group4.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group4.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==20){
+      Pumpset.pumpset5.group4.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group4.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group4.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group4.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group4.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset5.group4.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group4.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group4.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 5
+    else if(timePosition==21){
+      Pumpset.pumpset5.group5.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group5.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group5.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group5.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group5.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group5.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==22){
+      Pumpset.pumpset5.group5.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group5.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group5.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group5.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group5.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group5.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==23){
+      Pumpset.pumpset5.group5.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group5.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group5.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group5.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group5.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group5.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==24){
+      Pumpset.pumpset5.group5.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group5.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group5.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group5.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group5.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group5.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==25){
+      Pumpset.pumpset5.group5.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group5.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group5.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group5.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group5.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset5.group5.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group5.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group5.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }
+    //Group 6
+    else if(timePosition==26){
+      Pumpset.pumpset5.group6.timeStart_event1.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group6.timeStart_event1.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group6.timeIrrigate_event1.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group6.timeIrrigate_event1.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event1.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event1.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event1.time_irrg);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event1.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group6.timeStart_event1) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group6.timeIrrigate_event1);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==27){
+      Pumpset.pumpset5.group6.timeStart_event2.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group6.timeStart_event2.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group6.timeIrrigate_event2.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group6.timeIrrigate_event2.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event2.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event2.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event2.time_irrg);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event2.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group6.timeStart_event2) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group6.timeIrrigate_event2);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==28){
+      Pumpset.pumpset5.group6.timeStart_event3.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group6.timeStart_event3.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group6.timeIrrigate_event3.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group6.timeIrrigate_event3.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event3.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event3.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event3.time_irrg);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event3.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group6.timeStart_event3) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group6.timeIrrigate_event3);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==29){
+      Pumpset.pumpset5.group6.timeStart_event4.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group6.timeStart_event4.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group6.timeIrrigate_event4.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group6.timeIrrigate_event4.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event4.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event4.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event4.time_irrg);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event4.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group6.timeStart_event4) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group6.timeIrrigate_event4);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
+    }else if(timePosition==30){
+      Pumpset.pumpset5.group6.timeStart_event5.time_start_hour = hmi_8bit_var.byt1;
+      Pumpset.pumpset5.group6.timeStart_event5.time_start_minute = hmi_8bit_var.byt0;
+      Pumpset.pumpset5.group6.timeIrrigate_event5.time_irrg = hmi_16bit_var.reg1;
+      Pumpset.pumpset5.group6.timeIrrigate_event5.time_inv = hmi_16bit_var.reg0;
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event5.time_start_hour);
+      Serial.println(Pumpset.pumpset5.group6.timeStart_event5.time_start_minute);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event5.time_irrg);
+      Serial.println(Pumpset.pumpset5.group6.timeIrrigate_event5.time_inv);
+      ack = shiftToHMI_timeStrt(&Pumpset.pumpset5.group6.timeStart_event5) + shiftToHMI_timeIrrg(&Pumpset.pumpset5.group6.timeIrrigate_event5);
+      Serial.println("ACK EVENT" + String(timePosition) + " : " + String(ack));
     }
   }
   Serial.println("#####Save Event Timing Success");
@@ -1471,6 +3187,166 @@ void saveEventPriorityActionCallback(void *ptr){
         Serial.println(Pumpset.pumpset1.group6.priority.pump_interrupt);
         ack = shiftToHMI_priority(&Pumpset.pumpset1.group1.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group2.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group3.priority); 
         ack += shiftToHMI_priority(&Pumpset.pumpset1.group4.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group5.priority) + shiftToHMI_priority(&Pumpset.pumpset1.group6.priority);
+        Serial.println("ACK PRIO : " + String(ack));
+    }else if(pumpSet == 2){
+        hmi_8bit_var = get_byte(_G1);
+        Pumpset.pumpset2.group1.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset2.group1.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G2);
+        Pumpset.pumpset2.group2.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset2.group2.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G3);
+        Pumpset.pumpset2.group3.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset2.group3.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G4);
+        Pumpset.pumpset2.group4.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset2.group4.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G5);
+        Pumpset.pumpset2.group5.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset2.group5.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G6);
+        Pumpset.pumpset2.group6.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset2.group6.priority.pump_interrupt = hmi_8bit_var.byt0;
+        Serial.println("###Group1");
+        Serial.println(Pumpset.pumpset2.group1.priority.pump_priority);
+        Serial.println(Pumpset.pumpset2.group1.priority.pump_interrupt);
+        Serial.println("###Group2");
+        Serial.println(Pumpset.pumpset2.group2.priority.pump_priority);
+        Serial.println(Pumpset.pumpset2.group2.priority.pump_interrupt);
+        Serial.println("###Group3");
+        Serial.println(Pumpset.pumpset2.group3.priority.pump_priority);
+        Serial.println(Pumpset.pumpset2.group3.priority.pump_interrupt);
+        Serial.println("###Group4");
+        Serial.println(Pumpset.pumpset2.group4.priority.pump_priority);
+        Serial.println(Pumpset.pumpset2.group4.priority.pump_interrupt);
+        Serial.println("###Group5");
+        Serial.println(Pumpset.pumpset2.group5.priority.pump_priority);
+        Serial.println(Pumpset.pumpset2.group5.priority.pump_interrupt);
+        Serial.println("###Group6");
+        Serial.println(Pumpset.pumpset2.group6.priority.pump_priority);
+        Serial.println(Pumpset.pumpset2.group6.priority.pump_interrupt);
+        ack = shiftToHMI_priority(&Pumpset.pumpset2.group1.priority) + shiftToHMI_priority(&Pumpset.pumpset2.group2.priority) + shiftToHMI_priority(&Pumpset.pumpset2.group3.priority); 
+        ack += shiftToHMI_priority(&Pumpset.pumpset2.group4.priority) + shiftToHMI_priority(&Pumpset.pumpset2.group5.priority) + shiftToHMI_priority(&Pumpset.pumpset2.group6.priority);
+        Serial.println("ACK PRIO : " + String(ack));
+    }else if(pumpSet == 3){
+        hmi_8bit_var = get_byte(_G1);
+        Pumpset.pumpset3.group1.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset3.group1.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G2);
+        Pumpset.pumpset3.group2.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset3.group2.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G3);
+        Pumpset.pumpset3.group3.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset3.group3.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G4);
+        Pumpset.pumpset3.group4.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset3.group4.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G5);
+        Pumpset.pumpset3.group5.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset3.group5.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G6);
+        Pumpset.pumpset3.group6.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset3.group6.priority.pump_interrupt = hmi_8bit_var.byt0;
+        Serial.println("###Group1");
+        Serial.println(Pumpset.pumpset3.group1.priority.pump_priority);
+        Serial.println(Pumpset.pumpset3.group1.priority.pump_interrupt);
+        Serial.println("###Group2");
+        Serial.println(Pumpset.pumpset3.group2.priority.pump_priority);
+        Serial.println(Pumpset.pumpset3.group2.priority.pump_interrupt);
+        Serial.println("###Group3");
+        Serial.println(Pumpset.pumpset3.group3.priority.pump_priority);
+        Serial.println(Pumpset.pumpset3.group3.priority.pump_interrupt);
+        Serial.println("###Group4");
+        Serial.println(Pumpset.pumpset3.group4.priority.pump_priority);
+        Serial.println(Pumpset.pumpset3.group4.priority.pump_interrupt);
+        Serial.println("###Group5");
+        Serial.println(Pumpset.pumpset3.group5.priority.pump_priority);
+        Serial.println(Pumpset.pumpset3.group5.priority.pump_interrupt);
+        Serial.println("###Group6");
+        Serial.println(Pumpset.pumpset3.group6.priority.pump_priority);
+        Serial.println(Pumpset.pumpset3.group6.priority.pump_interrupt);
+        ack = shiftToHMI_priority(&Pumpset.pumpset3.group1.priority) + shiftToHMI_priority(&Pumpset.pumpset3.group2.priority) + shiftToHMI_priority(&Pumpset.pumpset3.group3.priority); 
+        ack += shiftToHMI_priority(&Pumpset.pumpset3.group4.priority) + shiftToHMI_priority(&Pumpset.pumpset3.group5.priority) + shiftToHMI_priority(&Pumpset.pumpset3.group6.priority);
+        Serial.println("ACK PRIO : " + String(ack));
+    }else if(pumpSet == 4){
+        hmi_8bit_var = get_byte(_G1);
+        Pumpset.pumpset4.group1.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset4.group1.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G2);
+        Pumpset.pumpset4.group2.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset4.group2.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G3);
+        Pumpset.pumpset4.group3.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset4.group3.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G4);
+        Pumpset.pumpset4.group4.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset4.group4.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G5);
+        Pumpset.pumpset4.group5.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset4.group5.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G6);
+        Pumpset.pumpset4.group6.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset4.group6.priority.pump_interrupt = hmi_8bit_var.byt0;
+        Serial.println("###Group1");
+        Serial.println(Pumpset.pumpset4.group1.priority.pump_priority);
+        Serial.println(Pumpset.pumpset4.group1.priority.pump_interrupt);
+        Serial.println("###Group2");
+        Serial.println(Pumpset.pumpset4.group2.priority.pump_priority);
+        Serial.println(Pumpset.pumpset4.group2.priority.pump_interrupt);
+        Serial.println("###Group3");
+        Serial.println(Pumpset.pumpset4.group3.priority.pump_priority);
+        Serial.println(Pumpset.pumpset4.group3.priority.pump_interrupt);
+        Serial.println("###Group4");
+        Serial.println(Pumpset.pumpset4.group4.priority.pump_priority);
+        Serial.println(Pumpset.pumpset4.group4.priority.pump_interrupt);
+        Serial.println("###Group5");
+        Serial.println(Pumpset.pumpset4.group5.priority.pump_priority);
+        Serial.println(Pumpset.pumpset4.group5.priority.pump_interrupt);
+        Serial.println("###Group6");
+        Serial.println(Pumpset.pumpset4.group6.priority.pump_priority);
+        Serial.println(Pumpset.pumpset4.group6.priority.pump_interrupt);
+        ack = shiftToHMI_priority(&Pumpset.pumpset4.group1.priority) + shiftToHMI_priority(&Pumpset.pumpset4.group2.priority) + shiftToHMI_priority(&Pumpset.pumpset4.group3.priority); 
+        ack += shiftToHMI_priority(&Pumpset.pumpset4.group4.priority) + shiftToHMI_priority(&Pumpset.pumpset4.group5.priority) + shiftToHMI_priority(&Pumpset.pumpset4.group6.priority);
+        Serial.println("ACK PRIO : " + String(ack));
+    }else if(pumpSet == 5){
+        hmi_8bit_var = get_byte(_G1);
+        Pumpset.pumpset5.group1.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset5.group1.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G2);
+        Pumpset.pumpset5.group2.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset5.group2.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G3);
+        Pumpset.pumpset5.group3.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset5.group3.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G4);
+        Pumpset.pumpset5.group4.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset5.group4.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G5);
+        Pumpset.pumpset5.group5.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset5.group5.priority.pump_interrupt = hmi_8bit_var.byt0;
+        hmi_8bit_var = get_byte(_G6);
+        Pumpset.pumpset5.group6.priority.pump_priority = hmi_8bit_var.byt1;
+        Pumpset.pumpset5.group6.priority.pump_interrupt = hmi_8bit_var.byt0;
+        Serial.println("###Group1");
+        Serial.println(Pumpset.pumpset5.group1.priority.pump_priority);
+        Serial.println(Pumpset.pumpset5.group1.priority.pump_interrupt);
+        Serial.println("###Group2");
+        Serial.println(Pumpset.pumpset5.group2.priority.pump_priority);
+        Serial.println(Pumpset.pumpset5.group2.priority.pump_interrupt);
+        Serial.println("###Group3");
+        Serial.println(Pumpset.pumpset5.group3.priority.pump_priority);
+        Serial.println(Pumpset.pumpset5.group3.priority.pump_interrupt);
+        Serial.println("###Group4");
+        Serial.println(Pumpset.pumpset5.group4.priority.pump_priority);
+        Serial.println(Pumpset.pumpset5.group4.priority.pump_interrupt);
+        Serial.println("###Group5");
+        Serial.println(Pumpset.pumpset5.group5.priority.pump_priority);
+        Serial.println(Pumpset.pumpset5.group5.priority.pump_interrupt);
+        Serial.println("###Group6");
+        Serial.println(Pumpset.pumpset5.group6.priority.pump_priority);
+        Serial.println(Pumpset.pumpset5.group6.priority.pump_interrupt);
+        ack = shiftToHMI_priority(&Pumpset.pumpset5.group1.priority) + shiftToHMI_priority(&Pumpset.pumpset5.group2.priority) + shiftToHMI_priority(&Pumpset.pumpset5.group3.priority); 
+        ack += shiftToHMI_priority(&Pumpset.pumpset5.group4.priority) + shiftToHMI_priority(&Pumpset.pumpset5.group5.priority) + shiftToHMI_priority(&Pumpset.pumpset5.group6.priority);
         Serial.println("ACK PRIO : " + String(ack));
     }
     Serial.println("#####Save Event Priority Success");
@@ -1541,9 +3417,4 @@ void initialConfig(){
                       .group5 = {.timeStart_event1 = {71,72}, .timeIrrigate_event1 = {1473,1474}, .timeStart_event2 = {75,76}, .timeIrrigate_event2 = {1477,1478}, .timeStart_event3 = {78,79}, .timeIrrigate_event3 = {1480,1481}, .timeStart_event4 = {82,83}, .timeIrrigate_event4 = {1484,1485}, .timeStart_event5 = {86,87}, .timeIrrigate_event5 = {1488,1489}, .priority = {5,true}},
                       .group6 = {.timeStart_event1 = {91,92}, .timeIrrigate_event1 = {1493,1494}, .timeStart_event2 = {95,96}, .timeIrrigate_event2 = {1497,1498}, .timeStart_event3 = {98,99}, .timeIrrigate_event3 = {100,101}, .timeStart_event4 = {12,13}, .timeIrrigate_event4 = {1474,1475}, .timeStart_event5 = {11,12}, .timeIrrigate_event5 = {1460,1423}, .priority = {6,true}}};                                                                                                      
 }
-
-
-
-
-
 
